@@ -1,0 +1,92 @@
+#pragma kernel CSMain
+
+struct Pixel
+{
+    float A;
+    float B;
+};
+
+struct Laplace
+{
+    float SumA;
+    float SumB;
+};
+
+
+RWStructuredBuffer<Pixel> pixels;
+RWTexture2D<float4> texture;
+int laplaceExtent = 1;
+
+int width;
+int height;
+
+float diffuseA;
+float diffuseB;
+float feed;
+float kill;
+
+
+Laplace CalculateLaplace(uint3 id : SV_DispatchThreadID)
+{
+    Laplace data;
+    int gridExtent = 1;
+    
+    if (id.x < gridExtent ||
+        id.x > (uint)width - gridExtent ||
+        id.y < gridExtent ||
+        id.y > (uint)height - gridExtent)
+    {
+        data.SumA = pixels[id].A;
+        data.SumB = pixels[id].B;
+        return data;
+    }
+
+    for (int i = -gridExtent; i <= gridExtent; ++i)
+    {
+        for (int j = -gridExtent; j <= gridExtent; ++j)
+        {
+            // do it
+        }
+    }
+    
+    return data;
+}
+
+float4 CalculatePixel(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x - laplaceExtent < 0 ||
+        id.x + laplaceExtent > width ||
+        id.y - laplaceExtent < 0 ||
+        id.y + laplaceExtent > height)
+    {
+        return float4(0, 0, 0, 0);
+    }
+    
+    Pixel temp;
+    
+    
+    
+    
+}
+
+[numthreads(10,1,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    
+    
+    texture[id.xy] = 
+    // Result[id.xy] = float4(id.x & id.y, (id.x & 15)/15.0, (id.y & 15)/15.0, 0.0);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
