@@ -13,7 +13,7 @@ public class Pixel {
 public class ReactionDiffusion : MonoBehaviour {
     private int width = 200;
     private int height = 200;
-    private int speed = 62; //Needs to be close to fps?
+    // private int speed = 62; 
     private int startPoints = 6;
     
     private float diffuseA = 1f;
@@ -112,7 +112,7 @@ public class ReactionDiffusion : MonoBehaviour {
             sum += grid[x + 1][y - 1].B * 0.05f;
             sum += grid[x + 1][y + 1].B * 0.05f;
             sum += grid[x - 1][y + 1].B * 0.05f;
-            return sum * Time.deltaTime * speed;
+            return sum;
         }
 
         sum += grid[x][y].A * -1f;
@@ -124,7 +124,7 @@ public class ReactionDiffusion : MonoBehaviour {
         sum += grid[x + 1][y - 1].A * 0.05f;
         sum += grid[x + 1][y + 1].A * 0.05f;
         sum += grid[x - 1][y + 1].A * 0.05f;
-        return sum * Time.deltaTime * speed;
+        return sum;
     }
 
     void SetSomeRandomPixBlack(int count)

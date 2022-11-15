@@ -19,6 +19,7 @@ int laplaceExtent = 1;
 
 int width;
 int height;
+int gridExtent = 1;
 
 float diffuseA;
 float diffuseB;
@@ -29,23 +30,30 @@ float kill;
 Laplace CalculateLaplace(uint3 id : SV_DispatchThreadID)
 {
     Laplace data;
-    int gridExtent = 1;
     
     if (id.x < gridExtent ||
         id.x > (uint)width - gridExtent ||
         id.y < gridExtent ||
         id.y > (uint)height - gridExtent)
     {
-        data.SumA = pixels[id].A;
-        data.SumB = pixels[id].B;
+        data.SumA = 0;
+        data.SumB = 0;
         return data;
     }
 
-    for (int i = -gridExtent; i <= gridExtent; ++i)
+    data.SumA = pixels[id.y * width + id.x].A * -1.0;
+    data.SumB = pixels[id.y * width + id.x].B * -1.0;
+    
+    for (int x = -gridExtent; x <= gridExtent; ++x)
     {
-        for (int j = -gridExtent; j <= gridExtent; ++j)
+        for (int y = -gridExtent; y <= gridExtent; ++y)
         {
-            // do it
+            float multiplier;
+            if (x == 0 || y == 0) { multiplier = 0.2; }
+            else { multiplier = 0.05; }
+            
+            data.SumA += pixels[(id.y + y) * width + (id.x + x)].A * multiplier;
+            data.SumB += pixels[(id.y + y) * width + (id.x + x)].B * multiplier;
         }
     }
     
@@ -59,23 +67,28 @@ float4 CalculatePixel(uint3 id : SV_DispatchThreadID)
         id.y - laplaceExtent < 0 ||
         id.y + laplaceExtent > height)
     {
-        return float4(0, 0, 0, 0);
+        return float4(0, 0, 0, 1);
     }
     
     Pixel temp;
     
-    
-    
-    
+    float a = pixels[id.xy].A;
+    float b = pixels[id.xy].B;
+    temp.A = a + (diffuseA * CalculateLaplace(id).SumA) - (a*b*b) + (feed * (1 -a));
+    temp.B = b + (diffuseB * CalculateLaplace(id).SumB) + (a*b*b) - ((kill + feed) * b);
+
+    if (temp.A < 0) temp.A = 0;
+    if (temp.B < 0) temp.B = 0;
+    if (temp.A > 1.0) temp.A = 1.0;
+    if (temp.B > 1.0) temp.B = 1.0;
+    float value = pixels[id.xy].A - pixels[id.xy].B;
+    return float4(value, value, value, 1);
 }
 
 [numthreads(10,1,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
-    
-    
-    texture[id.xy] = 
-    // Result[id.xy] = float4(id.x & id.y, (id.x & 15)/15.0, (id.y & 15)/15.0, 0.0);
+    texture[id.xy] = CalculatePixel(id);
 }
 
 

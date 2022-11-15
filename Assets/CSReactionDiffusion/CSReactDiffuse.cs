@@ -56,6 +56,7 @@ public class CSReactDiffuse : MonoBehaviour {
         ComputeBuffer pixelsBuffer =
             new ComputeBuffer(width * height, sizeof(float) * 2);
         pixelsBuffer.SetData(pixels);
+        
         computeShader.SetBuffer(0, "pixels", pixelsBuffer);
         computeShader.SetFloat("width", width);
         computeShader.SetFloat("height", height);
